@@ -6,8 +6,6 @@ import by.home.demo.model.User;
 import by.home.demo.repository.UserRepository;
 import by.home.demo.service.dto.UserDto;
 import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
-import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -73,8 +71,8 @@ public class UserService {
         }
     }
 
-    public void lastLoginUser(String username) {
-        userRepository.findByEmail(username).ifPresent(user -> {
+    public void updateLastLoginUser(String username) {
+        userRepository.findByLogin(username).ifPresent(user -> {
             user.setLastLogin(LocalDateTime.now());
         });
     }

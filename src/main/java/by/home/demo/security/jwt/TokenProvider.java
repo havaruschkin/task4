@@ -1,7 +1,6 @@
 package by.home.demo.security.jwt;
 
 import by.home.demo.model.Status;
-import by.home.demo.security.SecurityUtils;
 import by.home.demo.service.UserService;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.JwtException;
@@ -13,7 +12,6 @@ import java.security.Key;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Date;
-import java.util.Optional;
 import java.util.stream.Collectors;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Value;
@@ -56,7 +54,7 @@ public class TokenProvider implements InitializingBean {
                 .map(GrantedAuthority::getAuthority)
                 .collect(Collectors.joining(","));
         Date validity = new Date(new Date().getTime() + this.tokenValidityInMilliseconds);
-        userService.lastLoginUser(String.valueOf(SecurityUtils.getCurrentUserLogin()));
+        userService.updateLastLoginUser(authentication.getName());
         return Jwts.builder()
                 .setSubject(authentication.getName())
                 .claim(AUTHORITIES_KEY, authorities)

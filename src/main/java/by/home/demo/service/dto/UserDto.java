@@ -18,9 +18,9 @@ public class UserDto {
 
     private Status status;
 
-    @JsonFormat(pattern="dd-MM-yyyy HH:mm:ss")
+    @JsonFormat(pattern = "dd-MM-yyyy HH:mm:ss")
     private LocalDateTime createdTs;
 
-    @JsonFormat(pattern="dd-MM-yyyy HH:mm:ss")
+    @JsonFormat(pattern = "dd-MM-yyyy HH:mm:ss")
     private LocalDateTime lastLogin;
 }

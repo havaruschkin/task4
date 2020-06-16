@@ -29,19 +29,19 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
     @Override
     protected void configure(HttpSecurity http) throws Exception {
         http
-            .csrf()
-            .disable()
-            .httpBasic()
-            .and()
-            .sessionManagement()
-            .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
-            .and()
-            .authorizeRequests()
-            .antMatchers("/api/authenticate").permitAll()
-            .antMatchers("/api/register").permitAll()
-            .antMatchers("/**").authenticated()
-            .and()
-            .apply(new JWTConfigurer(tokenProvider));
+                .csrf()
+                .disable()
+                .httpBasic()
+                .and()
+                .sessionManagement()
+                .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
+                .and()
+                .authorizeRequests()
+                .antMatchers("/api/authenticate").permitAll()
+                .antMatchers("/api/register").permitAll()
+                .antMatchers("/**").authenticated()
+                .and()
+                .apply(new JWTConfigurer(tokenProvider));
 
         http.cors();
     }
