@@ -1,16 +1,15 @@
 package by.home.demo.service;
 
 import by.home.demo.exception.UsernameAlreadyUsedException;
-import by.home.demo.model.Authority;
+import by.home.demo.model.Status;
 import by.home.demo.model.User;
-import by.home.demo.repository.AuthorityRepository;
 import by.home.demo.repository.UserRepository;
-import by.home.demo.security.AuthoritiesConstants;
 import by.home.demo.service.dto.UserDto;
-import java.util.HashSet;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.util.Date;
 import java.util.List;
 import java.util.Optional;
-import java.util.Set;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -20,48 +19,63 @@ import org.springframework.transaction.annotation.Transactional;
 public class UserService {
 
     private final UserRepository userRepository;
-    private final AuthorityRepository authorityRepository;
     private final PasswordEncoder passwordEncoder;
 
-    public UserService(UserRepository userRepository, AuthorityRepository authorityRepository, PasswordEncoder passwordEncoder) {
+    public UserService(UserRepository userRepository, PasswordEncoder passwordEncoder) {
         this.userRepository = userRepository;
-        this.authorityRepository = authorityRepository;
         this.passwordEncoder = passwordEncoder;
     }
 
-    public User registrationUser(UserDto userDto, String password) {
-        userRepository.findByLogin(userDto.getLogin().toLowerCase()).ifPresent(user -> {
+    public void registrationUser(UserDto userDto, String password) {
+        userRepository.findByEmail(userDto.getEmail().toLowerCase()).ifPresent(user -> {
             throw new UsernameAlreadyUsedException();
         });
         String encryptedPassword = passwordEncoder.encode(password);
         User newUser = new User();
         newUser.setLogin(userDto.getLogin().toLowerCase());
         newUser.setPassword(encryptedPassword);
-        newUser.setName(userDto.getName());
-        newUser.setLastName(userDto.getLastName());
         newUser.setEmail(userDto.getEmail().toLowerCase());
-        newUser.setBlock(false);
-        Set<Authority> authorities = new HashSet<>();
-        authorityRepository.findByName(AuthoritiesConstants.USER).ifPresent(authorities::add);
-        newUser.setAuthorities(authorities);
+        newUser.setStatus(Status.ACTIVE);
         userRepository.save(newUser);
-        return newUser;
     }
-
-//    public Optional<User> activateRegistration(@RequestParam(value = "key") String key) {
-//        return userRepository.findByActivationKey(key).map(user -> {
-//            user.setActivationKey(null);
-//            user.setActivated(true);
-//            return user;
-//        });
-//    }
 
     public List<User> findAllUsers() {
         return userRepository.findAll();
     }
 
+    public Optional<User> findUser(Long id) {
+        return userRepository.findById(id);
+    }
 
-    public Optional<User> findUser(String login) {
-        return userRepository.findByLogin(login);
+    public Optional<User> findUserByUsername(String username) {
+        return userRepository.findByLogin(username);
+    }
+
+    public void deleteUser(Long id) {
+        userRepository.deleteById(id);
+    }
+
+    public void lockUsers(List<Long> userIds) {
+        for (Long id : userIds) {
+            findUser(id).ifPresent(user -> user.setStatus(Status.BLOCKED));
+        }
+    }
+
+    public void unlockUsers(List<Long> userIds) {
+        for (Long id : userIds) {
+            findUser(id).ifPresent(user -> user.setStatus(Status.ACTIVE));
+        }
+    }
+
+    public void deleteUsers(List<Long> userIds) {
+        for (Long id : userIds) {
+            deleteUser(id);
+        }
+    }
+
+    public void lastLoginUser(String username) {
+        userRepository.findByEmail(username).ifPresent(user -> {
+            user.setLastLogin(LocalDateTime.now());
+        });
     }
 }

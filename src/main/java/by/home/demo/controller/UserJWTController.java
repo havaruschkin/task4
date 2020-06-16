@@ -3,7 +3,6 @@ package by.home.demo.controller;
 import by.home.demo.security.jwt.JWTFilter;
 import by.home.demo.security.jwt.TokenProvider;
 import by.home.demo.service.vm.LoginVM;
-import com.fasterxml.jackson.annotation.JsonProperty;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -29,34 +28,19 @@ public class UserJWTController {
     }
 
     @PostMapping("/authenticate")
-    public ResponseEntity<JWTToken> authorize(@RequestBody LoginVM loginVM) {
+    public ResponseEntity<String> authorize(@RequestBody LoginVM loginVM) {
 
         UsernamePasswordAuthenticationToken authenticationToken =
-                new UsernamePasswordAuthenticationToken(loginVM.getUsername(), loginVM.getPassword());
+                new UsernamePasswordAuthenticationToken(loginVM.getEmail(), loginVM.getPassword());
 
         Authentication authentication = authenticationManagerBuilder.getObject().authenticate(authenticationToken);
         SecurityContextHolder.getContext().setAuthentication(authentication);
         String jwt = tokenProvider.createToken(authentication);
+        //TODO: нужно положить токен в бд + обновить у пользователя время логина
+
         HttpHeaders httpHeaders = new HttpHeaders();
         httpHeaders.add(JWTFilter.AUTHORIZATION_HEADER, "Bearer " + jwt);
-        return new ResponseEntity<>(new JWTToken(jwt), httpHeaders, HttpStatus.OK);
-    }
 
-    static class JWTToken {
-
-        private String idToken;
-
-        JWTToken(String idToken) {
-            this.idToken = idToken;
-        }
-
-        @JsonProperty("id_token")
-        String getIdToken() {
-            return idToken;
-        }
-
-        void setIdToken(String idToken) {
-            this.idToken = idToken;
-        }
+        return new ResponseEntity<>(jwt, httpHeaders, HttpStatus.OK);
     }
 }

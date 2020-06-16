@@ -1,23 +1,24 @@
 package by.home.demo.model;
 
 import java.time.LocalDateTime;
-import java.util.Set;
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.JoinTable;
-import javax.persistence.ManyToMany;
 import javax.persistence.Table;
-import lombok.Data;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.NonNull;
+import lombok.Setter;
 import org.hibernate.annotations.CreationTimestamp;
-import org.hibernate.annotations.UpdateTimestamp;
 
 @Entity
-@Data
+@Getter
+@Setter
+@NoArgsConstructor
 @Table(name = "user_db")
 public class User {
 
@@ -32,24 +33,14 @@ public class User {
     private String password;
 
     @CreationTimestamp
-    @Column(name = "created_usert", updatable = false)
-    private LocalDateTime createdUser;
+    @Column(name = "created_ts", updatable = false)
+    private LocalDateTime createdTs;
 
-    @UpdateTimestamp
     private LocalDateTime lastLogin;
 
-    private String name;
-    private String lastName;
+    @NonNull
     private String email;
-    private boolean block;
 
-    @ManyToMany
-    @JoinTable(
-            name = "cc_user_authority",
-            joinColumns = {@JoinColumn(name = "user_id", referencedColumnName = "id")},
-            inverseJoinColumns = {@JoinColumn(name = "authority_id", referencedColumnName = "id")})
-    private Set<Authority> authorities;
-
-    public User() {
-    }
+    @Enumerated(EnumType.STRING)
+    private Status status;
 }
